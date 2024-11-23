@@ -58,6 +58,9 @@
   "C_Cpp_Runner.msvcSecureNoWarnings": false,
   "files.associations": {
     "stdio.h": "c",
-    "stdint.h": "c"
+    "stdint.h": "c",
+    "stdlib.h": "c",
+    "bus.h": "c",
+    "holbroow6502.h": "c"
   }
 }
