@@ -4,7 +4,7 @@
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
 **Will Holbrook**  
-*Lancaster University Third Year Project 2024*
+*Lancaster University Third Year Project 2024*  
 **Course:** Computer Science BSc (G400)  
 **Module:** SCC 300 - EmuPC  
 **Supervisor:** Professor Andrew Scott
