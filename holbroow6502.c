@@ -375,6 +375,15 @@ void run_cpu(Cpu* cpu) {
     print_cpu(cpu);
 
     while (cpu->running) {
+        // Here we can optionally cap the program at a number of instructions 
+        // in order to save time while needing to test with large instruction sequences
+        // without having to step 1 by 1.
+        // int run_value = 55;
+        // if (cpu->A == run_value) {
+        //     exit(0);
+        // }
+
+        // Here we allow instruction stepping using the ENTER key
         int c  = getchar();
         while (c != '\n' && c != EOF) {
             c = getchar();
@@ -1183,18 +1192,30 @@ void handle_SEI(Cpu* cpu, uint8_t opcode) {
 
 // System Functions
 void handle_BRK(Cpu* cpu, uint8_t opcode) {
-    cpu->PC++; // BRK is a 2-byte instruction
+    cpu->PC++; // NOTE TO SELF: BRK may be a 2-byte instruction due to 'signature', I need to reesearch this.
     push_stack(cpu, (cpu->PC >> 8) & 0xFF);
     push_stack(cpu, cpu->PC & 0xFF);
-    uint8_t status = cpu->STATUS | FLAG_BREAK | FLAG_UNUSED;
+    uint8_t status = cpu->STATUS | FLAG_BREAK;
     push_stack(cpu, status);
     set_interrupt_flag(cpu, true);
     // Set PC to IRQ vector at 0xFFFE
     uint16_t irq_low = bus_read(cpu->bus, 0xFFFE);
     uint16_t irq_high = bus_read(cpu->bus, 0xFFFF) << 8;
     cpu->PC = irq_low | irq_high;
-    // cpu->running = false; // Stop the CPU from running until we return from interrupt
 }
+
+// void handle_BRK(Cpu* cpu, uint8_t opcode) {
+//     cpu->PC += 2; // BRK is a 2-byte instruction
+//     push_stack(cpu, (cpu->PC >> 8) & 0xFF); // Push high byte
+//     push_stack(cpu, cpu->PC & 0xFF);        // Push low byte
+//     uint8_t status = cpu->STATUS | FLAG_BREAK | FLAG_UNUSED;
+//     push_stack(cpu, status);
+//     set_interrupt_flag(cpu, true); // Set Interrupt Disable flag
+//     // Set PC to IRQ vector at 0xFFFE and 0xFFFF
+//     uint16_t irq_low = bus_read(cpu->bus, 0xFFFE);
+//     uint16_t irq_high = bus_read(cpu->bus, 0xFFFF) << 8;
+//     cpu->PC = irq_low | irq_high;
+// }
 
 void handle_NOP(Cpu* cpu, uint8_t opcode) {
     // NOP does nothing
@@ -1204,8 +1225,6 @@ void handle_NOP(Cpu* cpu, uint8_t opcode) {
 void handle_RTI(Cpu* cpu, uint8_t opcode) {
     // Pull status
     cpu->STATUS = pull_stack(cpu);
-    // Ensure unused bit is set
-    cpu->STATUS |= FLAG_UNUSED;
     // Pull PC
     uint8_t low = pull_stack(cpu);
     uint8_t high = pull_stack(cpu);

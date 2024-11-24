@@ -23,19 +23,19 @@ Bus* init_bus() {
 
 // Function to write data to the bus
 void bus_write(Bus* bus, uint16_t address, uint8_t data) {
-    if (address < MEMORY_SIZE) {
+    if (address <= MEMORY_SIZE) {
         bus->memory[address] = data;
     } else {
-        fprintf(stderr, "Error: Address 0x%04X out of range for write operation.\n", address);
+        fprintf(stderr, "Error: Address 0x%04x out of range for write operation.\n", address);
     }
 }
 
 // Function to read data from the bus
 uint8_t bus_read(Bus* bus, uint16_t address) {
-    if (address < MEMORY_SIZE) {
+    if (address <= MEMORY_SIZE) {
         return bus->memory[address];
     } else {
-        fprintf(stderr, "Error: Address 0x%04X out of range for read operation.\n", address);
+        fprintf(stderr, "Error: Address 0x%04x out of range for read operation.\n", address);
         return 0; // Return 0 or handle as appropriate
     }
 }

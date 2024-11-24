@@ -7,6 +7,53 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <ctype.h>
+
+void load_program(Bus* bus, uint16_t start_address, const char* hex_string) {
+    uint16_t current_address = start_address;   // Set the current memory offset to the intended start pos
+    const char* ptr = hex_string;               // Set a pointer to the passed string containing the object code
+    char buffer[3] = {0};                       // Two characters for a HEX byte
+    int byte_index = 0;                         // Allow indexing through bytes
+
+    while (*ptr != '\0') {  // While not at the end of the object code HEX string
+        // Skip any spaces or newlines, should there be any
+        if (isspace((unsigned char)*ptr)) {
+            ptr++;
+            continue;
+        }
+
+        // Read two hex characters to form a byte
+        buffer[0] = toupper((unsigned char)*ptr);   // First character as first 4 bits
+        ptr++;
+        if (*ptr == '\0') {
+            fprintf(stderr, "MANAGER: Error, Incomplete byte in hex string while loading program bytes.\n");
+            break;
+        }
+        buffer[1] = toupper((unsigned char)*ptr);   // Second character as second 4 bits to form the full byte
+        ptr++;
+        buffer[2] = '\0'; // Null-terminate the string
+
+        // Convert the hex string to a byte
+        char* endptr;
+        uint8_t byte = (uint8_t)strtol(buffer, &endptr, 16);
+        if (*endptr != '\0') {
+            fprintf(stderr, "MANAGER: Error, Invalid hex byte '%s' while loading program bytes.\n", buffer);
+            continue; // Skip invalid byte
+        }
+
+        // Write the byte to memory
+        bus_write(bus, current_address, byte);
+        current_address++;
+
+        // Check for memory bounds
+        if (current_address > 0xFFFF) {
+            fprintf(stderr, "MANAGER: Error, Reached end of memory while loading program.\n");
+            break;
+        }
+    }
+
+    printf("MANAGER: Program loaded successfully, starting at 0x%04X.\n", start_address);
+}
 
 // Main function
 int main() {
@@ -16,48 +63,10 @@ int main() {
     // Initialize CPU
     Cpu* cpu = init_cpu(bus);
 
-    // Program code to load:    Multiply 10 by 3
 
-    // LDX #10
-    bus_write(bus, 0x8000, 0xA2); // Opcode for LDX Immediate
-    bus_write(bus, 0x8001, 0x0A); // Operand: #10
-    // STX $0000
-    bus_write(bus, 0x8002, 0x8E); // Opcode for STX Absolute
-    bus_write(bus, 0x8003, 0x00); // Low byte of address
-    bus_write(bus, 0x8004, 0x00); // High byte of address
-    // LDX #3
-    bus_write(bus, 0x8005, 0xA2); // Opcode for LDX Immediate
-    bus_write(bus, 0x8006, 0x03); // Operand: #3
-    // STX $0001
-    bus_write(bus, 0x8007, 0x8E); // Opcode for STX Absolute
-    bus_write(bus, 0x8008, 0x01); // Low byte of address
-    bus_write(bus, 0x8009, 0x00); // High byte of address
-    // LDY $0000
-    bus_write(bus, 0x800A, 0xAC); // Opcode for LDY Absolute
-    bus_write(bus, 0x800B, 0x00); // Low byte of address
-    bus_write(bus, 0x800C, 0x00); // High byte of address
-    // LDA #0
-    bus_write(bus, 0x800D, 0xA9); // Opcode for LDA Immediate
-    bus_write(bus, 0x800E, 0x00); // Operand: #0
-    // CLC
-    bus_write(bus, 0x800F, 0x18); // Opcode for CLC
-    // ADC $0001
-    bus_write(bus, 0x8010, 0x65); // Opcode for ADC Zero Page
-    bus_write(bus, 0x8011, 0x01); // Operand: $0001 (Zero Page Address)
-    // DEY
-    bus_write(bus, 0x8012, 0x88); // Opcode for DEY
-    // BNE loop
-    bus_write(bus, 0x8013, 0xD0); // Opcode for BNE Relative
-    bus_write(bus, 0x8014, 0xFB); // Operand: Relative offset -5 (0xFB)
-    // STA $0002
-    bus_write(bus, 0x8015, 0x85); // Opcode for STA Zero Page
-    bus_write(bus, 0x8016, 0x02); // Operand: $0002 (Zero Page Address)
-    // NOP
-    bus_write(bus, 0x8017, 0xEA); // Opcode for NOP
-    // NOP
-    bus_write(bus, 0x8018, 0xEA); // Opcode for NOP
-    // NOP
-    bus_write(bus, 0x8019, 0xEA); // Opcode for NOP
+    // Program code to load:    Multiply 10 by 3
+    load_program(bus, 0x8000, "A2 0A 8E 00 00 A2 03 8E 01 00 AC 00 00 A9 00 18 6D 01 00 88 D0 FA 8D 02 00 EA EA EA");
+
 
     // Set PC to start of program
     cpu->PC = 0x8000;
@@ -72,3 +81,4 @@ int main() {
 
     return 0;
 }
+
