@@ -37,7 +37,6 @@
 ### Prerequisites
 
 - **C Compiler:** Ensure you have a C compiler installed (e.g., GCC).
-- **Make (optional):** For using Makefiles if available.
 
 ### Installation
 
