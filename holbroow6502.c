@@ -329,6 +329,17 @@ uint8_t pull_stack(Cpu* cpu) {
     return bus_read(cpu->bus, 0x0100 + cpu->SP);
 }
 
+// Initialize interrupt vectors
+void initialize_interrupt_vectors(Bus* bus) {
+    // NMI Vector: 0xFFFA and 0xFFFB
+    bus_write(bus, 0xFFFA, 0x00); // Low byte of NMI handler
+    bus_write(bus, 0xFFFB, 0x80); // High byte of NMI handler (e.g., 0x8000)
+
+    // IRQ Vector: 0xFFFE and 0xFFFF
+    bus_write(bus, 0xFFFE, 0x00); // Low byte of IRQ handler
+    bus_write(bus, 0xFFFF, 0x80); // High byte of IRQ handler (e.g., 0x8000)
+}
+
 // CPU Initialization and helper functions
 Cpu* init_cpu(Bus* bus) {
     Cpu* cpu = (Cpu*)malloc(sizeof(Cpu));
@@ -347,8 +358,11 @@ Cpu* init_cpu(Bus* bus) {
     cpu->STATUS = FLAG_UNUSED;
     cpu->bus = bus;
     cpu->running = true;
-    printf("CPU: CPU Initialised!\n");
 
+    // Initialize interrupt vectors
+    initialize_interrupt_vectors(bus);
+
+    printf("CPU: CPU Initialised!\n");
     return cpu;
 }
 
@@ -562,17 +576,21 @@ void run_cpu(Cpu* cpu) {
                 handle_RTI(cpu, opcode);
                 break;
             default:
-                // Handle illegal or undefined opcodes
-                printf("Encountered illegal or undefined opcode: 0x%02X at PC: 0x%04X\n", opcode, cpu->PC - 1);
+                // Handle illegal or undefined opcode(s)
+                printf("CPU: Error, Encountered illegal or undefined opcode: 0x%02X at PC: 0x%04X\n", opcode, cpu->PC - 1);
                 cpu->running = false;
                 break;
         }
 
-        printf("Instruction %d: \n", i+1);
+        printf("CPU: Instruction %d: \n", i+1);
         print_cpu(cpu);
 
         i++;
+
         // Future Note to self: Handle cycle counts, interrupts, etc.
+
+
+
     }
 }
 
@@ -1219,7 +1237,7 @@ void handle_BRK(Cpu* cpu, uint8_t opcode) {
 
 void handle_NOP(Cpu* cpu, uint8_t opcode) {
     // NOP does nothing
-    // NOTE TO SELF: PC is already incremented by fetch
+    // NOTE TO SELF: PC is already incremented by fetch, so no need to worry about value
 }
 
 void handle_RTI(Cpu* cpu, uint8_t opcode) {
