@@ -5,7 +5,8 @@
 
 **Will Holbrook**  
 *Lancaster University Third Year Project 2024*  
-**Course:** SCC 300 - EmuPC  
+**Course:** Computer Science BSc (G400)  
+**Module:** SCC 300 - EmuPC  
 **Supervisor:** Professor Andrew Scott
 
 ## Overview
@@ -36,7 +37,6 @@
 ### Prerequisites
 
 - **C Compiler:** Ensure you have a C compiler installed (e.g., GCC).
-- **Make (optional):** For using Makefiles if available.
 
 ### Installation
 
@@ -50,11 +50,11 @@
     ```
 3. **Compile the Project:**
     ```bash
-    gcc Main.c holbroow6502.c Bus.c -o holbroow6502
+    gcc -o test Main.c holbroow6502.c Bus.c
     ```
 
 ### Usage
 
 Run the emulator using the compiled executable:
 ```bash
-./holbroow6502
+./test.exe
