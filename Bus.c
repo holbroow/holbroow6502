@@ -7,14 +7,16 @@
 Bus* init_bus() {
     Bus* bus = (Bus*)malloc(sizeof(Bus));
     if (!bus) {
-        fprintf(stderr, "Error: Failed to allocate memory for the Bus.\n");
+        fprintf(stderr, "BUS: Error, Failed to allocate memory for the Bus.\n");
         exit(1);
     }
+    printf("BUS: Bus initialised!\n");
 
     // Initialize all memory to zero
     for (size_t i = 0; i < MEMORY_SIZE; i++) {
         bus->memory[i] = 0;
     }
+    printf("BUS: 2KB Memory initialised!\n");
 
     return bus;
 }

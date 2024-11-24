@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+
 // Define the opcode_table
 const Opcode opcode_table[256] = {
     // Initialize all 256 opcodes
@@ -328,13 +329,14 @@ uint8_t pull_stack(Cpu* cpu) {
     return bus_read(cpu->bus, 0x0100 + cpu->SP);
 }
 
-// CPU Initialization
+// CPU Initialization and helper functions
 Cpu* init_cpu(Bus* bus) {
     Cpu* cpu = (Cpu*)malloc(sizeof(Cpu));
     if (!cpu) {
-        fprintf(stderr, "Error: Failed to allocate memory for the CPU.\n");
+        fprintf(stderr, "CPU: Error, Failed to allocate memory for the CPU.\n");
         exit(1);
     }
+    printf("CPU: CPU allocated!\n");
 
     // Initialize CPU registers
     cpu->A = 0;
@@ -345,199 +347,223 @@ Cpu* init_cpu(Bus* bus) {
     cpu->STATUS = FLAG_UNUSED;
     cpu->bus = bus;
     cpu->running = true;
+    printf("CPU: CPU Initialised!\n");
 
     return cpu;
+}
+
+void print_cpu(Cpu* cpu) {
+    printf("|  A:%02x |  X:%02x |  Y:%02x |  SP:%04x |  PC:%04x |\n", cpu->A, cpu->X, cpu->Y, cpu->SP, cpu->PC);
+    printf("| C:%01x | Z:%01x | I:%01x | D:%01x | B:%01x | - | O:%01x | N:%01x |\n", (cpu->STATUS >> 0) & 1,
+                                                                     (cpu->STATUS >> 1) & 1,
+                                                                     (cpu->STATUS >> 2) & 1,
+                                                                     (cpu->STATUS >> 3) & 1,
+                                                                     (cpu->STATUS >> 4) & 1,
+                                                                     (cpu->STATUS >> 6) & 1,
+                                                                     (cpu->STATUS >> 7) & 1);
+    printf("\n");
 }
 
 // Main CPU Execution Loop
 void run_cpu(Cpu* cpu) {
     int i = 0;
+
+    printf("CPU: CPU is now running!\n");
+    printf("CPU: Press ENTER to step through instructions.\n");
+    printf("\n");
+    printf("Current CPU State:\n");
+    print_cpu(cpu);
+
     while (cpu->running) {
-        if (i < 100) {
-            uint8_t opcode = bus_read(cpu->bus, cpu->PC++);
-            Opcode current_opcode = opcode_table[opcode];
-
-            switch (current_opcode.instruction) {
-                case LDA:
-                    handle_LDA(cpu, opcode);
-                    break;
-                case LDX:
-                    handle_LDX(cpu, opcode);
-                    break;
-                case LDY:
-                    handle_LDY(cpu, opcode);
-                    break;
-                case STA:
-                    handle_STA(cpu, opcode);
-                    break;
-                case STX:
-                    handle_STX(cpu, opcode);
-                    break;
-                case STY:
-                    handle_STY(cpu, opcode);
-                    break;
-                case TAX:
-                    handle_TAX(cpu, opcode);
-                    break;
-                case TAY:
-                    handle_TAY(cpu, opcode);
-                    break;
-                case TXA:
-                    handle_TXA(cpu, opcode);
-                    break;
-                case TYA:
-                    handle_TYA(cpu, opcode);
-                    break;
-                case TSX:
-                    handle_TSX(cpu, opcode);
-                    break;
-                case TXS:
-                    handle_TXS(cpu, opcode);
-                    break;
-                case PHA:
-                    handle_PHA(cpu, opcode);
-                    break;
-                case PHP:
-                    handle_PHP(cpu, opcode);
-                    break;
-                case PLA:
-                    handle_PLA(cpu, opcode);
-                    break;
-                case PLP:
-                    handle_PLP(cpu, opcode);
-                    break;
-                case AND:
-                    handle_AND(cpu, opcode);
-                    break;
-                case EOR:
-                    handle_EOR(cpu, opcode);
-                    break;
-                case ORA:
-                    handle_ORA(cpu, opcode);
-                    break;
-                case BIT:
-                    handle_BIT(cpu, opcode);
-                    break;
-                case ADC:
-                    handle_ADC(cpu, opcode);
-                    break;
-                case SBC:
-                    handle_SBC(cpu, opcode);
-                    break;
-                case CMP:
-                    handle_CMP(cpu, opcode);
-                    break;
-                case CPX:
-                    handle_CPX(cpu, opcode);
-                    break;
-                case CPY:
-                    handle_CPY(cpu, opcode);
-                    break;
-                case INC:
-                    handle_INC(cpu, opcode);
-                    break;
-                case INX:
-                    handle_INX(cpu, opcode);
-                    break;
-                case INY:
-                    handle_INY(cpu, opcode);
-                    break;
-                case DEC:
-                    handle_DEC(cpu, opcode);
-                    break;
-                case DEX:
-                    handle_DEX(cpu, opcode);
-                    break;
-                case DEY:
-                    handle_DEY(cpu, opcode);
-                    break;
-                case ASL:
-                    handle_ASL(cpu, opcode);
-                    break;
-                case LSR:
-                    handle_LSR(cpu, opcode);
-                    break;
-                case ROL:
-                    handle_ROL(cpu, opcode);
-                    break;
-                case ROR:
-                    handle_ROR(cpu, opcode);
-                    break;
-                case JMP:
-                    handle_JMP(cpu, opcode);
-                    break;
-                case JSR:
-                    handle_JSR(cpu, opcode);
-                    break;
-                case RTS:
-                    handle_RTS(cpu, opcode);
-                    break;
-                case BCC:
-                    handle_BCC(cpu, opcode);
-                    break;
-                case BCS:
-                    handle_BCS(cpu, opcode);
-                    break;
-                case BEQ:
-                    handle_BEQ(cpu, opcode);
-                    break;
-                case BMI:
-                    handle_BMI(cpu, opcode);
-                    break;
-                case BNE:
-                    handle_BNE(cpu, opcode);
-                    break;
-                case BPL:
-                    handle_BPL(cpu, opcode);
-                    break;
-                case BVC:
-                    handle_BVC(cpu, opcode);
-                    break;
-                case BVS:
-                    handle_BVS(cpu, opcode);
-                    break;
-                case CLC:
-                    handle_CLC(cpu, opcode);
-                    break;
-                case CLD:
-                    handle_CLD(cpu, opcode);
-                    break;
-                case CLI:
-                    handle_CLI(cpu, opcode);
-                    break;
-                case CLV:
-                    handle_CLV(cpu, opcode);
-                    break;
-                case SEC:
-                    handle_SEC(cpu, opcode);
-                    break;
-                case SED:
-                    handle_SED(cpu, opcode);
-                    break;
-                case SEI:
-                    handle_SEI(cpu, opcode);
-                    break;
-                case BRK:
-                    handle_BRK(cpu, opcode);
-                    break;
-                case NOP:
-                    handle_NOP(cpu, opcode);
-                    break;
-                case RTI:
-                    handle_RTI(cpu, opcode);
-                    break;
-                default:
-                    // Handle illegal or undefined opcodes
-                    printf("Encountered illegal or undefined opcode: 0x%02X at PC: 0x%04X\n", opcode, cpu->PC - 1);
-                    cpu->running = false;
-                    break;
-            }
-
-            printf("Accumulator: %d\n", cpu->A);
-
-            i++;
-            // Future Note to self: Handle cycle counts, interrupts, etc.
+        int c  = getchar();
+        while (c != '\n' && c != EOF) {
+            c = getchar();
         }
+
+        uint8_t opcode = bus_read(cpu->bus, cpu->PC++);
+        Opcode current_opcode = opcode_table[opcode];
+
+        switch (current_opcode.instruction) {
+            case LDA:
+                handle_LDA(cpu, opcode);
+                break;
+            case LDX:
+                handle_LDX(cpu, opcode);
+                break;
+            case LDY:
+                handle_LDY(cpu, opcode);
+                break;
+            case STA:
+                handle_STA(cpu, opcode);
+                break;
+            case STX:
+                handle_STX(cpu, opcode);
+                break;
+            case STY:
+                handle_STY(cpu, opcode);
+                break;
+            case TAX:
+                handle_TAX(cpu, opcode);
+                break;
+            case TAY:
+                handle_TAY(cpu, opcode);
+                break;
+            case TXA:
+                handle_TXA(cpu, opcode);
+                break;
+            case TYA:
+                handle_TYA(cpu, opcode);
+                break;
+            case TSX:
+                handle_TSX(cpu, opcode);
+                break;
+            case TXS:
+                handle_TXS(cpu, opcode);
+                break;
+            case PHA:
+                handle_PHA(cpu, opcode);
+                break;
+            case PHP:
+                handle_PHP(cpu, opcode);
+                break;
+            case PLA:
+                handle_PLA(cpu, opcode);
+                break;
+            case PLP:
+                handle_PLP(cpu, opcode);
+                break;
+            case AND:
+                handle_AND(cpu, opcode);
+                break;
+            case EOR:
+                handle_EOR(cpu, opcode);
+                break;
+            case ORA:
+                handle_ORA(cpu, opcode);
+                break;
+            case BIT:
+                handle_BIT(cpu, opcode);
+                break;
+            case ADC:
+                handle_ADC(cpu, opcode);
+                break;
+            case SBC:
+                handle_SBC(cpu, opcode);
+                break;
+            case CMP:
+                handle_CMP(cpu, opcode);
+                break;
+            case CPX:
+                handle_CPX(cpu, opcode);
+                break;
+            case CPY:
+                handle_CPY(cpu, opcode);
+                break;
+            case INC:
+                handle_INC(cpu, opcode);
+                break;
+            case INX:
+                handle_INX(cpu, opcode);
+                break;
+            case INY:
+                handle_INY(cpu, opcode);
+                break;
+            case DEC:
+                handle_DEC(cpu, opcode);
+                break;
+            case DEX:
+                handle_DEX(cpu, opcode);
+                break;
+            case DEY:
+                handle_DEY(cpu, opcode);
+                break;
+            case ASL:
+                handle_ASL(cpu, opcode);
+                break;
+            case LSR:
+                handle_LSR(cpu, opcode);
+                break;
+            case ROL:
+                handle_ROL(cpu, opcode);
+                break;
+            case ROR:
+                handle_ROR(cpu, opcode);
+                break;
+            case JMP:
+                handle_JMP(cpu, opcode);
+                break;
+            case JSR:
+                handle_JSR(cpu, opcode);
+                break;
+            case RTS:
+                handle_RTS(cpu, opcode);
+                break;
+            case BCC:
+                handle_BCC(cpu, opcode);
+                break;
+            case BCS:
+                handle_BCS(cpu, opcode);
+                break;
+            case BEQ:
+                handle_BEQ(cpu, opcode);
+                break;
+            case BMI:
+                handle_BMI(cpu, opcode);
+                break;
+            case BNE:
+                handle_BNE(cpu, opcode);
+                break;
+            case BPL:
+                handle_BPL(cpu, opcode);
+                break;
+            case BVC:
+                handle_BVC(cpu, opcode);
+                break;
+            case BVS:
+                handle_BVS(cpu, opcode);
+                break;
+            case CLC:
+                handle_CLC(cpu, opcode);
+                break;
+            case CLD:
+                handle_CLD(cpu, opcode);
+                break;
+            case CLI:
+                handle_CLI(cpu, opcode);
+                break;
+            case CLV:
+                handle_CLV(cpu, opcode);
+                break;
+            case SEC:
+                handle_SEC(cpu, opcode);
+                break;
+            case SED:
+                handle_SED(cpu, opcode);
+                break;
+            case SEI:
+                handle_SEI(cpu, opcode);
+                break;
+            case BRK:
+                handle_BRK(cpu, opcode);
+                break;
+            case NOP:
+                handle_NOP(cpu, opcode);
+                break;
+            case RTI:
+                handle_RTI(cpu, opcode);
+                break;
+            default:
+                // Handle illegal or undefined opcodes
+                printf("Encountered illegal or undefined opcode: 0x%02X at PC: 0x%04X\n", opcode, cpu->PC - 1);
+                cpu->running = false;
+                break;
+        }
+
+        printf("Instruction %d: \n", i+1);
+        print_cpu(cpu);
+
+        i++;
+        // Future Note to self: Handle cycle counts, interrupts, etc.
     }
 }
 
@@ -1167,6 +1193,7 @@ void handle_BRK(Cpu* cpu, uint8_t opcode) {
     uint16_t irq_low = bus_read(cpu->bus, 0xFFFE);
     uint16_t irq_high = bus_read(cpu->bus, 0xFFFF) << 8;
     cpu->PC = irq_low | irq_high;
+    // cpu->running = false; // Stop the CPU from running until we return from interrupt
 }
 
 void handle_NOP(Cpu* cpu, uint8_t opcode) {
@@ -1183,4 +1210,5 @@ void handle_RTI(Cpu* cpu, uint8_t opcode) {
     uint8_t low = pull_stack(cpu);
     uint8_t high = pull_stack(cpu);
     cpu->PC = (high << 8) | low;
+    // cpu->running = true; // Return to a running state
 }
