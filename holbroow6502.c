@@ -392,10 +392,12 @@ void run_cpu(Cpu* cpu) {
         // Here we can optionally cap the program at a number of instructions 
         // in order to save time while needing to test with large instruction sequences
         // without having to step 1 by 1.
-        // int run_value = 55;
-        // if (cpu->A == run_value) {
-        //     exit(0);
-        // }
+        // Default = Initially disabled with an example value of 50
+        bool run_capped = false;
+        int capped_value = 50;
+        if (run_capped && cpu->A == capped_value) {
+            exit(0);
+        }
 
         // Here we allow instruction stepping using the ENTER key
         int c  = getchar();
@@ -588,8 +590,6 @@ void run_cpu(Cpu* cpu) {
         i++;
 
         // Future Note to self: Handle cycle counts, interrupts, etc.
-
-
 
     }
 }
