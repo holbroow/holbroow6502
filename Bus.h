@@ -7,8 +7,8 @@
 #include <stdio.h>
 
 // Define the memory size for the bus (64KB for 16-bit addressing)
-#define MEMORY_SIZE 65535 // 65535 Bytes of addressable memory, this currently makes up the whole bus but 
-                          // i want to make it 'attached' soon to allow for other peripherals.
+#define MEMORY_SIZE 65535 // 65535 Bytes of addressable memory, this currently makes up 
+                          // the whole bus but i want to make it 'attached' soon to allow for other peripherals.
 
 // Define the Bus structure
 typedef struct {

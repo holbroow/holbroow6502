@@ -585,6 +585,7 @@ void run_cpu(Cpu* cpu) {
         }
 
         printf("CPU: Instruction %d: \n", i+1);
+        printf("Current Opcode: %02x\n", opcode);
         print_cpu(cpu);
 
         i++;
@@ -1238,6 +1239,7 @@ void handle_BRK(Cpu* cpu, uint8_t opcode) {
 void handle_NOP(Cpu* cpu, uint8_t opcode) {
     // NOP does nothing
     // NOTE TO SELF: PC is already incremented by fetch, so no need to worry about value
+    // cpu->PC++;
 }
 
 void handle_RTI(Cpu* cpu, uint8_t opcode) {
