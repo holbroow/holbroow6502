@@ -142,7 +142,7 @@ typedef struct Opcode {
 extern const Opcode opcode_table[256];
 
 // Declare a table of referrable instruction names for debug/printf
-extern const char *InstructionStrings[65];
+extern const char *InstructionStrings[56];
 
 // Delcare a table of referrable addressing modes for debug/printf
 extern const char *AddressModeStrings[13];

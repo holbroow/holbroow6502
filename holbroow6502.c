@@ -521,21 +521,14 @@ static inline bool page_crossed(uint16_t old_addr, uint16_t new_addr) {
 }
 
 // Main CPU Clock function
-void cpu_clock(Cpu* cpu, bool run_debug, int frame_num) {
+void cpu_clock(Cpu* cpu, bool run_debug, int inst_num) {
     if (cpu->cycles_left == 0) {
         uint8_t opcode = bus_read(cpu->bus, cpu->PC++);
         Opcode current_opcode = opcode_table[opcode];
         
-        // This was to print the next instruction during runtime, but we dont use by default
-        // uint8_t next_opcode = bus_read(cpu->bus, cpu->PC++);
-        // cpu->PC--;  // We increment the PC to read the next opcode, so we need to go back (I hate this...)
-
-        // printf("Instruction: %s\n", InstructionStrings[current_opcode.instruction]);
-        // printf("PC: %d\n", cpu->PC);
-        //for (volatile int i = 0; i < 50000000; i++);
-        
-        // Debug statement to test with nestest.nes 'golden log' before we had PPU bgs and therefore GUI
-        //printf("PC: %02X |  %s  |  A:%02x |  X:%02x |  Y:%02x |  SP:%04x | %d\n", cpu->PC-1, InstructionStrings[current_opcode.instruction], cpu->A, cpu->X, cpu->Y, cpu->SP, cpu->cycle_count);
+        // This is to print the next instruction during runtime
+        uint8_t next_opcode = bus_read(cpu->bus, cpu->PC++);
+        cpu->PC--;  // We increment the PC to read the next opcode, so we need to go back (I hate this...)
 
         // NOTE: cpu->cycles_left is decremented within the instruction handlers, happy days!
         switch (current_opcode.instruction) {
@@ -714,14 +707,17 @@ void cpu_clock(Cpu* cpu, bool run_debug, int frame_num) {
                 break;
         }
         
-        // if (run_debug) {
-        //     printf("[CPU] Instruction %d: \n", frame_num);
-        //     printf("Current Opcode: %02x\n", opcode);
-        //     printf("\n");
-        //     print_instruction(cpu, current_opcode, next_opcode);
-        //     printf("\n");
-        //     print_cpu(cpu);
-        // }
+        if (run_debug) {
+            printf("\n\n----------------------------------------------\n");
+            printf("[CPU] Cycle %d: \n", inst_num);
+            printf("Current Opcode: %02x\n", opcode);
+            printf("Instruction: %s\n", InstructionStrings[current_opcode.instruction]);
+            printf("\n");
+            print_instruction(cpu, current_opcode, next_opcode);
+            printf("\n");
+            print_cpu(cpu);
+            printf("----------------------------------------------\n\n");
+        }
     }
     cpu->cycle_count++;
     cpu->cycles_left--;

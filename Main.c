@@ -9,6 +9,8 @@
 #include <stdbool.h>
 #include <ctype.h>
 
+int inst_num = 0;
+
 void load_program(Bus* bus, uint16_t start_address, const char* hex_string) {
     uint16_t current_address = start_address;   // Set the current memory offset to the intended start pos
     const char* ptr = hex_string;               // Set a pointer to the passed string containing the object code
@@ -53,6 +55,13 @@ void load_program(Bus* bus, uint16_t start_address, const char* hex_string) {
     }
 
     printf("MANAGER: Program loaded successfully, starting at 0x%04X.\n", start_address);
+}
+
+// Run CPU
+void run_cpu(Cpu* cpu) {
+    while (cpu->running) {
+        cpu_clock(cpu, true, inst_num++);
+    }
 }
 
 // Main function

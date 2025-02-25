@@ -1,6 +1,5 @@
 // Bus.h
-#ifndef BUS_H
-#define BUS_H
+#pragma once
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -22,5 +21,3 @@ Bus* init_bus();
 void bus_write(Bus* bus, uint16_t address, uint8_t data);
 // Function to read data from the bus
 uint8_t bus_read(Bus* bus, uint16_t address);
-
-#endif // BUS_H
